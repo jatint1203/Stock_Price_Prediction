@@ -6,22 +6,28 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+import numpy as np
 
+import matplotlib.pyplot as plt
 import pandas as pd
 import json
 
 from scipy.fftpack import sc_diff
 # Create your views here.
 
+
 def index(request):
     return render(request, 'index.html')
     # return HttpResponse("THis is home")
 
+
 def about(request):
     return render(request, 'about.html')
 
+
 def contact(request):
     return render(request, 'contact.html')
+
 
 def services(request):
     return render(request, 'services.html')
@@ -30,46 +36,74 @@ def services(request):
 def login(request):
     return render(request, 'login.html')
 
+
 def stock_info(request):
+    global df, df_reverse
     try:
         print("Try")
-        df=data_code
+        df = data_code
         print(data_code)
     except:
         print("except")
-        df=data_name
-        print(data_name)
-    
-    df=df[:2]
-    
-    # json_data=json.loads(df.reset_index().to_json(orient='records')) 
-    
-    
-    # arr=[]
-    # arr=json.loads(json_data)
-  
-    equity_data = {
-        'time':df.iloc[0,0],
-        'open':df.iloc[0,1],
+        df = data_name
+        print(data_name)  
         
-        'high':df.iloc[0,2],
-        'low':df.iloc[0,3],
-        'close':df.iloc[0,4]
-
-    }
-    print(equity_data)
+    #Reversing the datafram because it shows new one first
+    df_reverse=df[::-1]
+    closed_data=df_reverse['close']
+    closed_data= np.array(closed_data.to_numpy()) #Converting into numpy array
+    closed_data = list(closed_data) # converting to list to add comma between
+    print(closed_data)
+    print(type(closed_data))
     
-    return render(request, 'stock_info.html',equity_data)
+    Stock_graph()
+    
+    
+    
+
+    equity_data=[{"date": df.iloc[0,0], "open": df.iloc[0,1], "high":df.iloc[0,2],
+                  "low": df.iloc[0,3], "close":df.iloc[0,4],
+                  "volume": df.iloc[0,5], "closed_data" : closed_data }]
+
+    
+    return render(request, 'stock_info.html', {'equity_data' : equity_data})
+
+
+
+def Stock_graph():
+    plt.figure(figsize=(20,10))
+    plt.plot(df_reverse ['close'],color="green", label="Predicted Price")
+    plt.title(f"{equity_name} Share Price", fontsize=30)
+    plt.xlabel("Time", fontsize=23)
+    plt.ylabel("Closing Price", fontsize=23)
+    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',facecolor='beige', bbox_inches="tight",
+            pad_inches=0.3, transparent=True)  
+    
+    
+    plt.figure(figsize=(20,10))
+    plt.bar(df_reverse.index,df_reverse ['close'],color="blue", label="Predicted Price")
+    plt.title(f"{equity_name} Share Price", fontsize=30)
+    plt.xlabel("Time", fontsize=23)
+    plt.ylabel("Closing Price", fontsize=23)
+    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=300,facecolor='beige', bbox_inches="tight",
+            pad_inches=0.3, transparent=True)  
+    
+    
+    
+    
+
 
 def prediction(request):
-    return render(request,'prediction.html')
+    return render(request, 'prediction.html')
 
-# This line ignore cookies 
+# This line ignore cookies
 # if we don't return anything then it will throw an error
+
+
 @csrf_exempt
 def stock_name(request):
 
-    global name1, value, data_code, data_name
+    global name1, value, data_code, data_name, data_overview, equity_name
     if request.method == 'GET':
         return HttpResponse("THis is get method")
         pass
@@ -2734,38 +2768,31 @@ def stock_name(request):
 
                 if key == name[0]:
                     value = value1
+                    equity_name=value1
 
         except:
-            name1 = list(d1.keys())[list(d1.values()).index(name[0])]  # This get all value asscoiated with key
+            # This get all value asscoiated with key
+            name1 = list(d1.keys())[list(d1.values()).index(name[0])]
+            equity_name=name1
 
             pass
 
         try:
-    
-            data_code= pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name[0]}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
+
+            data_code = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name[0]}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
             # print(data_code)
-
-            
-            return HttpResponse(value) # Sending company name
-
-
-
+            data_overview=pd.read_json('https://www.alphavantage.co/query?function=OVERVIEW&symbol={name[0]}.BSE&apikey=7KYND1T0YGSM56O8')
+            print(data_overview)
+            return HttpResponse(value)  # Sending company name
 
         except:
-            
-            name1 = list(d1.keys())[list(d1.values()).index(name[0])]  # This get all value asscoiated with key
 
-
+            # This get all value asscoiated with key
+            name1 = list(d1.keys())[list(d1.values()).index(name[0])]
 
             data_name = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name1}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
             # print(data_name)
-
+            data_overview=pd.read_json('https://www.alphavantage.co/query?function=OVERVIEW&symbol={name[0]}.BSE&apikey=7KYND1T0YGSM56O8')
             
-            return HttpResponse(name1) #SEnding Company code
-        
-       
-            
-            
-    
 
-
+            return HttpResponse(name1)  # SEnding Company code

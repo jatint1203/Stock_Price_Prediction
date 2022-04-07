@@ -4,4 +4,8 @@
 
 {% block title %} {% endblock title %}
 
-{% block body %} {% endblock body %}
+{% block body %} 
+{% if chart %}
+<img src="data:image/png;base64", {{chart | safe}}"
+{% endif %}
+{% endblock body %}
