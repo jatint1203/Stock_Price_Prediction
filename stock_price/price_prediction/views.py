@@ -14,6 +14,11 @@ import json
 
 from scipy.fftpack import sc_diff
 # Create your views here.
+from .utils import prediction_image
+#Machine learing modules
+from sklearn.preprocessing import MinMaxScaler 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, LSTM
 
 
 def index(request):
@@ -40,27 +45,22 @@ def login(request):
 def stock_info(request):
     global df, df_reverse
     try:
-        print("Try")
+      
         df = data_code
-        print(data_code)
     except:
-        print("except")
+        
         df = data_name
-        print(data_name)  
+       
         
     #Reversing the datafram because it shows new one first
-    df_reverse=df[::-1]
+    df_reverse=df
+    df_reverse=df_reverse.loc[::-1].reset_index(drop = True)
     closed_data=df_reverse['close']
     closed_data= np.array(closed_data.to_numpy()) #Converting into numpy array
     closed_data = list(closed_data) # converting to list to add comma between
-    print(closed_data)
-    print(type(closed_data))
     
     Stock_graph()
     
-    
-    
-
     equity_data=[{"date": df.iloc[0,0], "open": df.iloc[0,1], "high":df.iloc[0,2],
                   "low": df.iloc[0,3], "close":df.iloc[0,4],
                   "volume": df.iloc[0,5], "closed_data" : closed_data }]
@@ -71,30 +71,42 @@ def stock_info(request):
 
 
 def Stock_graph():
-    plt.figure(figsize=(20,10))
-    plt.plot(df_reverse ['close'],color="green", label="Predicted Price")
-    plt.title(f"{equity_name} Share Price", fontsize=30)
+    
+    close=df_reverse['close'] 
+   
+    plt.plot(df_reverse['close'],color="green", label="Stock Price")
+    plt.title(f"{equity_name} Share Price")
     plt.xlabel("Time", fontsize=23)
     plt.ylabel("Closing Price", fontsize=23)
-    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',facecolor='beige', bbox_inches="tight",
-            pad_inches=0.3, transparent=True)  
+    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+    plt.close()
     
-    
-    plt.figure(figsize=(20,10))
-    plt.bar(df_reverse.index,df_reverse ['close'],color="blue", label="Predicted Price")
-    plt.title(f"{equity_name} Share Price", fontsize=30)
+    plt.bar(df_reverse.index,df_reverse ['volume'],color="blue", label="Predicted Price")
+    plt.title(f"{equity_name} Share Price") 
     plt.xlabel("Time", fontsize=23)
-    plt.ylabel("Closing Price", fontsize=23)
-    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=300,facecolor='beige', bbox_inches="tight",
-            pad_inches=0.3, transparent=True)  
+    plt.ylabel("Volume Traded")
+    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+    plt.close()
+
+
+#This function is called to avoid time taken for machine learning algorithm    
+@csrf_exempt  
+def prediction_graph(request):
+    global prediction_price
     
-    
-    
+    name = request.POST.getlist('name[]') #This will give me data which came from stock info template
+    print(name[0])
+    prediction_price = prediction_image(name[0])
+    return HttpResponse(prediction_price) 
+ 
+        
     
 
 
 def prediction(request):
-    return render(request, 'prediction.html')
+    return render(request, 'prediction.html', {'prediction_price': prediction_price})
+
+
 
 # This line ignore cookies
 # if we don't return anything then it will throw an error
@@ -2782,7 +2794,7 @@ def stock_name(request):
             data_code = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name[0]}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
             # print(data_code)
             data_overview=pd.read_json('https://www.alphavantage.co/query?function=OVERVIEW&symbol={name[0]}.BSE&apikey=7KYND1T0YGSM56O8')
-            print(data_overview)
+            # print(data_overview)
             return HttpResponse(value)  # Sending company name
 
         except:

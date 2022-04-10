@@ -15,6 +15,7 @@ urlpatterns = [
     path("stock_info", views.stock_info, name='stock_info'),
     path('stock_name', views.stock_name, name='stock_name'),
     path('prediction', views.prediction, name='prediction'),
+    path('prediction_graph', views.prediction_graph, name='prediction_graph'),
     
     
 ]
