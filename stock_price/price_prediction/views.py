@@ -15,10 +15,6 @@ import json
 from scipy.fftpack import sc_diff
 # Create your views here.
 from .utils import prediction_image
-#Machine learing modules
-from sklearn.preprocessing import MinMaxScaler 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, LSTM
 
 
 def index(request):
@@ -43,7 +39,7 @@ def login(request):
 
 
 def stock_info(request):
-    global df, df_reverse
+    global df, df_reverse, close
     try:
       
         df = data_code
@@ -58,7 +54,7 @@ def stock_info(request):
     closed_data=df_reverse['close']
     closed_data= np.array(closed_data.to_numpy()) #Converting into numpy array
     closed_data = list(closed_data) # converting to list to add comma between
-    
+    close = df.iloc[0,4]
     Stock_graph()
     
     equity_data=[{"date": df.iloc[0,0], "open": df.iloc[0,1], "high":df.iloc[0,2],
@@ -72,18 +68,17 @@ def stock_info(request):
 
 def Stock_graph():
     
-    close=df_reverse['close'] 
    
     plt.plot(df_reverse['close'],color="green", label="Stock Price")
     plt.title(f"{equity_name} Share Price")
-    plt.xlabel("Time", fontsize=23)
-    plt.ylabel("Closing Price", fontsize=23)
+    plt.xlabel("Time")
+    plt.ylabel("Closing Price" )
     plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
     
     plt.bar(df_reverse.index,df_reverse ['volume'],color="blue", label="Predicted Price")
-    plt.title(f"{equity_name} Share Price") 
-    plt.xlabel("Time", fontsize=23)
+    plt.title(f"{equity_name} Share Volume Trade") 
+    plt.xlabel("Time")
     plt.ylabel("Volume Traded")
     plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
@@ -95,7 +90,7 @@ def prediction_graph(request):
     global prediction_price
     
     name = request.POST.getlist('name[]') #This will give me data which came from stock info template
-    print(name[0])
+    
     prediction_price = prediction_image(name[0])
     return HttpResponse(prediction_price) 
  
@@ -104,7 +99,9 @@ def prediction_graph(request):
 
 
 def prediction(request):
-    return render(request, 'prediction.html', {'prediction_price': prediction_price})
+    print(value, equity_name)
+    prediction_price1 = [{'prediction_price' : prediction_price,'comapny_code': value, 'comapny_name' : equity_name, 'close_price':close}]
+    return render(request, 'prediction.html', {'prediction_price': prediction_price1})
 
 
 

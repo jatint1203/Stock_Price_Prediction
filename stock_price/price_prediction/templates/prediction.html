@@ -49,8 +49,25 @@
         </div>
 
     </div>
-    <h1>
-        {{prediction_price}}
-    </h1>
+
+    <div
+        style="width: 99%; height: 160px; background-color: #4018f0; margin: top 30px; border-radius:15px; ">
+        <center>
+            <h1 style="color: rgb(251, 251, 253);"> 
+                {% for data in prediction_price %}
+              
+                    Current Price of {{data.comapny_name}} is <span style="color: rgb(8, 241, 39);"> {{data.close_price}} Rs.</span>
+                    <br>
+                    <span style="color:aqua;">
+                    Perhaps, After One Week
+                </span>
+                    <br>
+                
+                Future Price of {{data.comapny_name}} is <span style="color: rgb(8, 241, 39);">{{data.prediction_price}} Rs.</span>
+                {% endfor %}
+            </h1>
+        </center>
+    </div>
+
 
     {% endblock body %}
