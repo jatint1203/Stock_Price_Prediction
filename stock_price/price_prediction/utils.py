@@ -64,7 +64,7 @@ def prediction_image(name):
         model.add(Dense(units=1)) #prediction of the next closing value
 
         model.compile(optimizer='adam', loss='mean_squared_error')
-        model.fit(x_train, y_train, epochs=30, batch_size=32) 
+        model.fit(x_train, y_train, epochs=30, batch_size=32) #Epochs
 
         '''Test the model accuracy on existing data'''
 
@@ -119,8 +119,7 @@ def prediction_image(name):
         plt.close()
 
 
-
-
+       #Plotting both graphs
         plt.plot(test_data['predicted_prices'], color="green", label=f"Predicted {company} Price")
         plt.plot(test_data['close'], color="black", label=f"Actually {company} Price")
 
