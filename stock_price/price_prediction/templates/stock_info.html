@@ -77,14 +77,14 @@
                             <td> Today's Volume</td>
                         </tr>
                         <div style="margin-top: 20px;">
-                        <tr>
-                            <td>{{p.open }}</td>
-                            <td> {{ p.close }}</td>
-                            <td> {{ p.high }}</td>
-                            <td>{{ p.low }}</td>
-                            <td> {{ p.volume }}</td>
-                        </tr>
-                    </div>
+                            <tr>
+                                <td>{{p.open }}</td>
+                                <td> {{ p.close }}</td>
+                                <td> {{ p.high }}</td>
+                                <td>{{ p.low }}</td>
+                                <td> {{ p.volume }}</td>
+                            </tr>
+                        </div>
                 </h5>
                 </table>
             </div>
@@ -134,12 +134,12 @@
 
                                 </h4>
                                 <br>
-
-                                <a href='prediction'>
-                                    <button class="btn btn-primary btn-lg" type="button"
-                                        style="margin-left: 6px;">Predict This Stock</button></a>
-
-
+                                <!-- 
+                                <a href='prediction' target="_blank">
+                                    <button id="predict_btn" class="btn btn-primary btn-lg" type="button"
+                                        style="margin-left: 6px;">Predict This Stock</button></a> -->
+                                <button id="predict_btn" class="btn btn-primary btn-lg" type="button"
+                                    style="margin-left: 6px; cursor : pointer " onclick="prediction_page()">Predict This Stock</button>
                             </div>
                         </div>
                     </div>
@@ -171,8 +171,10 @@
 
             document.getElementById("stock_specific").innerHTML = "" + company_name + " - " + company_code + "";
 
+            // Disabling Predict Button
 
-          
+            var btn = document.getElementById("predict_btn")
+            btn.disabled = true;
             window.onload = function exampleFunction() {
                 console.log('The Script will load now.');
                 console.log("Ajax function")
@@ -189,6 +191,8 @@
 
 
                         alert(response)
+                        btn.disabled = false; //Enabling the button
+
                     },
 
 
@@ -198,8 +202,10 @@
                 });
             }
 
-          
+            function prediction_page() {
 
+                window.open("http://127.0.0.1:8000/prediction", "_blank");
+            }
 
         </script>
 

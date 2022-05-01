@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy as np
-
+import math
 
 #Machine learing modules
 from sklearn.preprocessing import MinMaxScaler 
@@ -22,20 +22,25 @@ def prediction_image(name):
         company = name
 
 
-        df = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_weekly&symbol={name}.BSE&datatype=csv&apikey=FH07SZXZ2ONHNOOO')
+        df = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_weekly&symbol={name}.BSE&datatype=csv&apikey=FH07SZXZ2ONHNOOO',parse_dates=True, index_col=0)
+        
         test_data = df
         data = df[::-1].reset_index(drop = True) #reversing the dataframe
-                
+        print(data)
+        data_size = df.shape[0] #Size of data
+        print(data_size)
+        data_size = math.floor(data_size/10)  
+        print(data_size)
 
 
-        test_data =test_data.iloc[:80] #Selecting 80 data to predict
+        test_data =test_data.iloc[:data_size] #Selecting data_size  to predict
         test_data=test_data[::-1] 
 
         #Prepare Data
         scaler=MinMaxScaler(feature_range=(0,1)) #Converting in ragne of  and 1 so that values could't make bigger
         scaled_data=scaler.fit_transform(data['close'].values.reshape(-1,1))
 
-        prediction_days = 80 
+        prediction_days = data_size
 
         x_train=[]
         y_train=[]
@@ -59,7 +64,7 @@ def prediction_image(name):
         model.add(Dense(units=1)) #prediction of the next closing value
 
         model.compile(optimizer='adam', loss='mean_squared_error')
-        model.fit(x_train, y_train, epochs=25, batch_size=32)
+        model.fit(x_train, y_train, epochs=30, batch_size=32) 
 
         '''Test the model accuracy on existing data'''
 
@@ -89,18 +94,25 @@ def prediction_image(name):
 
         # Plot the test predictions
 
-        plt.plot(actual_prices, color = "black", label=f"Actual {company} Price")
+        plt.plot(test_data['close'], color = "black", label=f"Actual {company} Price") #THis is actual graph
         plt.title(f"{company} Share Price")
         plt.xlabel("Time")
+        plt.xticks(rotation =60)
         plt.ylabel(f"{company} Share Price")
         plt.legend()
         plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\graph_actual.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
         plt.close()
         
-       
-        plt.plot(predicted_prices, color="green", label=f"Predicted {company} Price")
+        
+        '''
+        I am adding this to test dataframe because i want to show date.. I tried many methods but it wasn't working ..
+        that is why I am usign this method
+        '''
+        test_data['predicted_prices'] = predicted_prices #Adding this to  test data dataframe
+        plt.plot(test_data['predicted_prices'], color="green", label=f"Predicted {company} Price")
         plt.title(f"{company} Predicted Share Price")
         plt.xlabel("Time")
+        plt.xticks(rotation =60)
         plt.ylabel(f"{company} Share Price")
         plt.legend()
         plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\predicted_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
@@ -109,12 +121,13 @@ def prediction_image(name):
 
 
 
-        plt.plot(predicted_prices, color="green", label=f"Predicted {company} Price")
-        plt.plot(actual_prices, color="black", label=f"Actually {company} Price")
+        plt.plot(test_data['predicted_prices'], color="green", label=f"Predicted {company} Price")
+        plt.plot(test_data['close'], color="black", label=f"Actually {company} Price")
 
         plt.title(f"{company} Predicted + Actual Share Price")
         plt.xlabel("Time")
         plt.ylabel(f"{company} Share Price")
+        plt.xticks(rotation =60)
         plt.legend()
         plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\prediction_actual_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
         plt.close()
@@ -124,7 +137,6 @@ def prediction_image(name):
         real_data = [model_inputs[len(model_inputs)-prediction_days:len(model_inputs+1), 0]]
         real_data = np.array(real_data)
         real_data=np.reshape(real_data, (real_data.shape[0], real_data.shape[1],1))
-        print(type(real_data))
         prediction=model.predict(real_data)
         prediction = scaler.inverse_transform(prediction)
         prediction = prediction[0,0] #THis givs a single value

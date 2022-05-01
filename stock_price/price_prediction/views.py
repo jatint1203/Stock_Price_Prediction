@@ -8,6 +8,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import numpy as np
 
+import warnings
+warnings.filterwarnings("ignore")
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import json
@@ -54,7 +57,7 @@ def stock_info(request):
     closed_data=df_reverse['close']
     closed_data= np.array(closed_data.to_numpy()) #Converting into numpy array
     closed_data = list(closed_data) # converting to list to add comma between
-    close = df.iloc[0,4]
+    close = float("{:.2f}".format(df.iloc[0,4])) #Eliminates number after decimals
     Stock_graph()
     
     equity_data=[{"date": df.iloc[0,0], "open": df.iloc[0,1], "high":df.iloc[0,2],
@@ -68,17 +71,22 @@ def stock_info(request):
 
 def Stock_graph():
     
+    plot_graph = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={for_date_function_stock_graph}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8',parse_dates=True, index_col=0)
+    print("plot_graph")
+    
+    print(plot_graph)
    
-    plt.plot(df_reverse['close'],color="green", label="Stock Price")
+    plt.plot(plot_graph['close'],color="green", label="Stock Price")
     plt.title(f"{equity_name} Share Price")
     plt.xlabel("Time")
+    plt.xticks(rotation =60)
     plt.ylabel("Closing Price" )
     plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
     
     plt.bar(df_reverse.index,df_reverse ['volume'],color="blue", label="Predicted Price")
     plt.title(f"{equity_name} Share Volume Trade") 
-    plt.xlabel("Time")
+    plt.xlabel("Quantity")
     plt.ylabel("Volume Traded")
     plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
@@ -99,7 +107,7 @@ def prediction_graph(request):
 
 
 def prediction(request):
-    print(value, equity_name)
+    print(value, equity_name, close)
     prediction_price1 = [{'prediction_price' : prediction_price,'comapny_code': value, 'comapny_name' : equity_name, 'close_price':close}]
     return render(request, 'prediction.html', {'prediction_price': prediction_price1})
 
@@ -112,7 +120,7 @@ def prediction(request):
 @csrf_exempt
 def stock_name(request):
 
-    global name1, value, data_code, data_name, data_overview, equity_name
+    global name1, value, data_code, data_name, data_overview, equity_name, for_date_function_stock_graph
     if request.method == 'GET':
         return HttpResponse("THis is get method")
         pass
@@ -2768,6 +2776,7 @@ def stock_name(request):
         }
 
         print(name[0])
+        for_date_function_stock_graph = name[0]
 
         try:
 
@@ -2790,7 +2799,6 @@ def stock_name(request):
 
             data_code = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name[0]}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
             # print(data_code)
-            data_overview=pd.read_json('https://www.alphavantage.co/query?function=OVERVIEW&symbol={name[0]}.BSE&apikey=7KYND1T0YGSM56O8')
             # print(data_overview)
             return HttpResponse(value)  # Sending company name
 
@@ -2800,8 +2808,6 @@ def stock_name(request):
             name1 = list(d1.keys())[list(d1.values()).index(name[0])]
 
             data_name = pd.read_csv(f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={name1}.BSE&datatype=csv&apikey=7KYND1T0YGSM56O8')
-            # print(data_name)
-            data_overview=pd.read_json('https://www.alphavantage.co/query?function=OVERVIEW&symbol={name[0]}.BSE&apikey=7KYND1T0YGSM56O8')
-            
+            # print(data_name)            
 
             return HttpResponse(name1)  # SEnding Company code
