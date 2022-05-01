@@ -81,14 +81,14 @@ def Stock_graph():
     plt.xlabel("Time")
     plt.xticks(rotation =60)
     plt.ylabel("Closing Price" )
-    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\closed_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+    plt.savefig(r'price_prediction\static\img\Graph_images\closed_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
     
     plt.bar(df_reverse.index,df_reverse ['volume'],color="blue", label="Predicted Price")
     plt.title(f"{equity_name} Share Volume Trade") 
     plt.xlabel("Quantity")
     plt.ylabel("Volume Traded")
-    plt.savefig(r'D:\ML Project\stock_price\price_prediction\static\img\Graph_images\volume_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+    plt.savefig(r'price_prediction\static\img\Graph_images\volume_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
     plt.close()
 
 

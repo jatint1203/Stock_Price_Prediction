@@ -100,7 +100,7 @@ def prediction_image(name):
         plt.xticks(rotation =60)
         plt.ylabel(f"{company} Share Price")
         plt.legend()
-        plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\graph_actual.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+        plt.savefig(r'price_prediction\static\img\Graph_images\graph_actual.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
         plt.close()
         
         
@@ -115,7 +115,7 @@ def prediction_image(name):
         plt.xticks(rotation =60)
         plt.ylabel(f"{company} Share Price")
         plt.legend()
-        plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\predicted_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+        plt.savefig(r'price_prediction\static\img\Graph_images\predicted_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
         plt.close()
 
 
@@ -128,7 +128,7 @@ def prediction_image(name):
         plt.ylabel(f"{company} Share Price")
         plt.xticks(rotation =60)
         plt.legend()
-        plt.savefig('D:\ML Project\stock_price\price_prediction\static\img\Graph_images\prediction_actual_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
+        plt.savefig(r'price_prediction\static\img\Graph_images\prediction_actual_graph.png',dpi=900,facecolor='beige', bbox_inches="tight",pad_inches=0.3, transparent=True)
         plt.close()
         
         
